@@ -1,6 +1,6 @@
 {% load static %}
 
-<!DOCTYPE html>
+{% comment %} <!DOCTYPE html>
 <html lang="en">
 
 
@@ -836,4 +836,60 @@
 </body>
 
 
+</html> {% endcomment %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chatbot UI</title>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+</head>
+<body>
+    <h1>Chatbot</h1>
+
+    {% if user.is_authenticated %}
+        <div id="chat-container">
+            <form id="user-input-form" method="POST">
+                {% csrf_token %}
+                <textarea id="user-input" name="user_input" placeholder="Enter your message"></textarea>
+                <button type="submit" id="submit-button">Analyze</button>
+            </form>
+            <div id="analysis-results"></div>
+        </div>
+
+        <script>
+            $(document).ready(function() {
+                $('#user-input-form').submit(function(event) {
+                    event.preventDefault(); // Prevent default form submission
+
+                    var userInput = $('#user-input').val();
+
+                    $.ajax({
+                        url: '/analyze_input/',
+                        type: 'POST',
+                        data: { 'user_input': userInput },
+                        beforeSend: function(xhr) {
+                            xhr.setRequestHeader('X-CSRFToken', getCSRFToken());
+                        },
+                        success: function(response) {
+                            $('#analysis-results').html(response.output);
+                            $('#user-input').val(''); // Clear the input field
+                        },
+                        error: function(error) {
+                            console.error('Error sending request:', error);
+                            // Display an error message to the user
+                        }
+                    });
+                });
+
+                function getCSRFToken() {
+                    return $('[name="csrfmiddlewaretoken"]').attr('value');
+                }
+            });
+        </script>
+    {% else %}
+        <p>You need to log in to access the chatbot features.</p>
+    {% endif %}
+</body>
 </html>

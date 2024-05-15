@@ -9,3 +9,12 @@ class Profile(models.Model):
     
     def __str__(self):
         return self.user.username
+
+class ChatLogEntry(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE,default=1)
+    user_input = models.TextField()
+    analysis_result = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Input: {self.user_input[:20]}... | Result: {self.analysis_result[:20]}..."  # Truncate for better display
